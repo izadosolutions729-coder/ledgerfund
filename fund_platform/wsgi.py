@@ -16,12 +16,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fund_platform.settings')
 application = get_wsgi_application()
 app = application
 
-# Auto-migrate only if running on Vercel with temporary SQLite
-if os.environ.get('VERCEL') and not (os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')):
+# Auto-migrate on Vercel startup to ensure tables exist
+if os.environ.get('VERCEL'):
     from django.core.management import call_command
     try:
+        print("Running auto-migrations on Vercel...")
         call_command('migrate', interactive=False)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Migration error: {e}")
+
 
 
