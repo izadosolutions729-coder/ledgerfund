@@ -16,14 +16,28 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fund_platform.settings')
 application = get_wsgi_application()
 app = application
 
-# Auto-migrate on Vercel startup to ensure tables exist
+# Auto-migrate and Seed on Vercel startup
 if os.environ.get('VERCEL'):
     from django.core.management import call_command
     try:
-        print("Running auto-migrations on Vercel...")
+        print("Running auto-migrations and seeding on Vercel...")
         call_command('migrate', interactive=False)
+        
+        # Seed demo user
+        from core.models import User, Organization
+        if not User.objects.filter(username='treasurer_bob').exists():
+            org, _ = Organization.objects.get_or_create(organization_name="Enterprise Community Fund")
+            User.objects.create_superuser(
+                username='treasurer_bob',
+                password='bobpassword123',
+                email='bob@example.com',
+                organization=org,
+                role='treasurer'
+            )
+            print("Demo user 'treasurer_bob' created.")
     except Exception as e:
-        print(f"Migration error: {e}")
+        print(f"Startup error: {e}")
+
 
 
 
