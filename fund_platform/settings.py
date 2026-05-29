@@ -85,13 +85,21 @@ WSGI_APPLICATION = 'fund_platform.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Use a database URL if available (PostgreSQL), otherwise fallback to SQLite.
+# On Vercel, if no DB is connected, we use /tmp to avoid "read-only" crashes.
+db_url = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
+
+if not db_url and os.environ.get('VERCEL'):
+    db_url = f"sqlite:////tmp/db.sqlite3"
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default=db_url or f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
         conn_health_checks=True,
     )
 }
+
 
 
 
