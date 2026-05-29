@@ -1,0 +1,78 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Record Repayment - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Record Loan Repayment</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Record a repayment for loan agreement #{{ loan.id }} issued to {{ loan.member.full_name }}</p>
+    </div>
+    <a href="{% url 'loan_list' %}" class="btn btn-secondary">⬅️ Back to Loans</a>
+</div>
+
+<div class="glass-card" style="max-width: 680px; margin: auto;">
+    <div style="background: rgba(99, 102, 241, 0.08); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.2); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 600;">Outstanding Principal Balance</div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--accent-rose); font-family: 'Outfit', sans-serif;">${{ loan.outstanding_amount }}</div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 0.85rem; font-weight: 500;">Original Principal: <b>${{ loan.principal_amount }}</b></div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Interest Rate: {{ loan.interest_rate }}%</div>
+        </div>
+    </div>
+
+    <form method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="principal_paid" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Principal Paid ($)</label>
+                <input type="number" id="principal_paid" name="principal_paid" required step="0.01" value="100.00" min="0.00" max="{{ loan.outstanding_amount }}"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="interest_paid" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Interest Paid ($)</label>
+                <input type="number" id="interest_paid" name="interest_paid" step="0.01" value="0.00" min="0.00"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="penalty_paid" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Penalty Paid ($)</label>
+                <input type="number" id="penalty_paid" name="penalty_paid" step="0.01" value="0.00" min="0.00"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="payment_date" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Repayment Date</label>
+                <input type="date" id="payment_date" name="payment_date" required value="2026-05-20"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="payment_mode" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Repayment Mode</label>
+            <select id="payment_mode" name="payment_mode" required 
+                    style="background: rgba(13, 16, 38, 0.9); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+                <option value="cash">Cash</option>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cheque">Cheque</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="remarks" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Remarks / Narrative</label>
+            <textarea id="remarks" name="remarks" rows="2" placeholder="Repayment details (e.g. Month 1 installment)..."
+                      style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none; resize: vertical;"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+            Apply Repayment & Rebalance Ledger 💾
+        </button>
+    </form>
+</div>
+{% endblock %}

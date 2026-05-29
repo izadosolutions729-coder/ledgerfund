@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Community Fund Management{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: rgba(99, 102, 241, 0.08);
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --accent-indigo: #4f46e5;
+            --accent-cyan: #0ea5e9;
+            --accent-rose: #ef4444;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(6, 182, 212, 0.03) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* App Layout */
+        .app-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+        }
+
+        .brand-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-grow: 1;
+        }
+
+        .menu-item a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .menu-item a:hover, .menu-item.active a {
+            color: var(--accent-indigo);
+            background: rgba(99, 102, 241, 0.05);
+            border-color: rgba(99, 102, 241, 0.08);
+            box-shadow: none;
+        }
+
+        .user-profile-section {
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .username-display {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .role-tag {
+            font-size: 0.75rem;
+            background: rgba(14, 165, 233, 0.1);
+            color: #0369a1;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            width: max-content;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            margin-top: 1rem;
+            color: var(--accent-rose) !important;
+            border: 1px solid rgba(239, 68, 68, 0.1) !important;
+            background: #ffffff !important;
+        }
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.05) !important;
+            border-color: rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 2.5rem;
+            max-width: 1400px;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .page-header {
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        /* Global UI Elements */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(99, 102, 241, 0.06);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 10px 15px -3px rgba(99, 102, 241, 0.04);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.15);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 20px 25px -5px rgba(99, 102, 241, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan));
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.18);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: var(--text-primary);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+        }
+
+        /* Form Overrides to force premium styling */
+        input[type="text"], 
+        input[type="password"], 
+        input[type="number"], 
+        input[type="date"], 
+        input[type="month"], 
+        select, 
+        textarea {
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: var(--text-primary) !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+            border-radius: 10px !important;
+            padding: 0.8rem 1rem !important;
+            outline: none !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        input[type="text"]:focus, 
+        input[type="password"]:focus, 
+        input[type="number"]:focus, 
+        input[type="date"]:focus, 
+        input[type="month"]:focus, 
+        select:focus, 
+        textarea:focus {
+            border-color: var(--accent-indigo) !important;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+        }
+
+        /* Global Table Styling Override */
+        table {
+            border-collapse: collapse;
+        }
+        table tr {
+            border-bottom: 1px solid #e2e8f0 !important;
+            transition: background 0.2s ease;
+        }
+        table tr:hover {
+            background: #f8fafc;
+        }
+        table th {
+            border-bottom: 2px solid #e2e8f0 !important;
+            padding: 1rem 0.5rem !important;
+            color: var(--text-secondary) !important;
+            font-weight: 600 !important;
+        }
+        table td {
+            color: var(--text-secondary) !important;
+            padding: 1rem 0.5rem !important;
+        }
+
+        /* Messages */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #047857;
+        }
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: #b91c1c;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+                padding: 1.5rem;
+            }
+            .sidebar-menu {
+                flex-direction: row;
+                flex-wrap: wrap;
+                margin-bottom: 1.5rem;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1.5rem;
+            }
+            .user-profile-section {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                border-top: none;
+                padding-top: 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if request.user.is_authenticated %}
+    <div class="sidebar">
+        <div class="brand-logo">
+            <span style="font-size: 1.8rem;">⬡</span> LedgerFund
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+            </li>
+            {% if request.user.role != 'standard' %}
+            <li class="menu-item {% if 'member' in request.path %}active{% endif %}">
+                <a href="{% url 'member_list' %}">👥 Member Registry</a>
+            </li>
+            {% endif %}
+            <li class="menu-item {% if 'contribution' in request.path %}active{% endif %}">
+                <a href="{% url 'contribution_list' %}">💰 Contributions</a>
+            </li>
+            <li class="menu-item {% if 'loan' in request.path %}active{% endif %}">
+                <a href="{% url 'loan_list' %}">💸 Loans Receivable</a>
+            </li>
+            <li class="menu-item {% if 'reports' in request.path %}active{% endif %}">
+                <a href="{% url 'reports' %}">📋 General Ledger</a>
+            </li>
+            <li class="menu-item {% if 'meetings' in request.path %}active{% endif %}">
+                <a href="{% url 'meeting_list' %}">📅 Meetings</a>
+            </li>
+        </ul>
+        <div class="user-profile-section">
+            <div>
+                <div class="username-display">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                <div class="role-tag">{{ request.user.role }}</div>
+            </div>
+            <a href="{% url 'logout' %}" class="btn btn-secondary logout-btn">🔒 Logout</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="main-content" style="{% if not request.user.is_authenticated %}margin-left: 0; width: 100%; padding: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh;{% endif %}">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Audit Trail - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">General Ledger</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Immutable audit trail of all financial movements</p>
+    </div>
+    <a href="{% url 'download_ledger_pdf' %}" class="btn btn-primary">📥 Download Audit PDF</a>
+</div>
+
+<div class="glass-card">
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <input type="text" id="searchInput" placeholder="Search categories, remarks..." 
+               style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.6rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none; flex-grow: 1;"
+               onkeyup="filterTable()">
+        <select id="typeFilter" onchange="filterTable()"
+                style="background: rgba(13, 16, 38, 0.9); border: 1px solid var(--card-border); padding: 0.6rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none; min-width: 140px;">
+            <option value="all">All Types</option>
+            <option value="debit">Debit</option>
+            <option value="credit">Credit</option>
+        </select>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table id="ledgerTable" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-secondary);">
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Date</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Category</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Type</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: right;">Debit</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: right;">Credit</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: right;">Deriving Balance</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.03); transition: background 0.2s;">
+                    <td style="padding: 1rem 0.5rem; color: var(--text-secondary);">{{ entry.transaction_date|date:"Y-m-d" }}</td>
+                    <td style="padding: 1rem 0.5rem; font-weight: 600;">{{ entry.category }}</td>
+                    <td style="padding: 1rem 0.5rem;">
+                        {% if entry.transaction_type == 'debit' %}
+                        <span class="type-badge" data-type="debit" style="color: var(--accent-emerald); font-weight: 600; font-size: 0.8rem; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.5rem; border-radius: 6px; text-transform: uppercase;">Debit</span>
+                        {% else %}
+                        <span class="type-badge" data-type="credit" style="color: var(--accent-indigo); font-weight: 600; font-size: 0.8rem; background: rgba(99, 102, 241, 0.1); padding: 0.2rem 0.5rem; border-radius: 6px; text-transform: uppercase;">Credit</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem 0.5rem; text-align: right; font-weight: 600;">${{ entry.debit_amount }}</td>
+                    <td style="padding: 1rem 0.5rem; text-align: right; font-weight: 600;">${{ entry.credit_amount }}</td>
+                    <td style="padding: 1rem 0.5rem; text-align: right; font-weight: 700; color: var(--accent-cyan);">${{ entry.balance_after_transaction }}</td>
+                    <td style="padding: 1rem 0.5rem; color: var(--text-secondary);">{{ entry.remarks|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="padding: 3rem; text-align: center; color: var(--text-secondary);">No audit records found in database.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function filterTable() {
+    var search = document.getElementById("searchInput").value.toLowerCase();
+    var type = document.getElementById("typeFilter").value;
+    var table = document.getElementById("ledgerTable");
+    var tr = table.getElementsByTagName("tr");
+
+    for (var i = 1; i < tr.length; i++) {
+        var row = tr[i];
+        var text = row.innerText.toLowerCase();
+        
+        var badge = row.querySelector(".type-badge");
+        var rowType = badge ? badge.getAttribute("data-type") : "";
+        
+        var matchesSearch = text.includes(search);
+        var matchesType = (type === "all" || rowType === type);
+
+        if (matchesSearch && matchesType) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    }
+}
+</script>
+{% endblock %}

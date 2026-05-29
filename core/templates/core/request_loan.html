@@ -1,0 +1,47 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Apply for Loan - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Request a Loan</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Apply for financial support from the community pool</p>
+    </div>
+    <a href="{% url 'loan_list' %}" class="btn btn-secondary">⬅️ Back to Loans</a>
+</div>
+
+<div class="glass-card" style="max-width: 680px; margin: auto;">
+    <form method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% csrf_token %}
+        
+        <div style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.1); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">Requesting as:</div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <img src="{{ member.photo_url }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-indigo);">
+                <div>
+                    <div style="font-weight: 700; font-size: 1rem; color: var(--text-primary);">{{ member.full_name }}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Member Code: {{ member.member_code }} | Savings Balance: ${{ member.contributions.all|length|default:"0" }} payments</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="principal_amount" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Desired Loan Amount ($)</label>
+            <input type="number" id="principal_amount" name="principal_amount" required step="0.01" value="1000.00" min="0.01"
+                   style="background: #ffffff; border: 1px solid #cbd5e1; padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            <p style="font-size: 0.75rem; color: var(--text-secondary);">Maximum limit is dependent on committee approval rules and current share count.</p>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="reason" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Detailed Purpose / Reason for Loan</label>
+            <textarea id="reason" name="reason" rows="4" required placeholder="Describe exactly why you need the loan and how you plan to repay..."
+                      style="background: #ffffff; border: 1px solid #cbd5e1; padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none; resize: vertical;"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+            Submit Loan Application 📤
+        </button>
+    </form>
+</div>
+{% endblock %}

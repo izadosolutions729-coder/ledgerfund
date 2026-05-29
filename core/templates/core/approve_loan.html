@@ -1,0 +1,123 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Review Loan Request - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Review Loan Request</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Committee evaluation and ledger accounting for Loan Request #{{ loan.id }}</p>
+    </div>
+    <a href="{% url 'loan_list' %}" class="btn btn-secondary">⬅️ Back to Loans</a>
+</div>
+
+<div class="glass-card" style="max-width: 680px; margin: auto;">
+    <div style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.08); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; color: var(--text-primary); border-bottom: 1px solid rgba(0, 0, 0, 0.05); padding-bottom: 0.5rem;">Applicant Profile</h3>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <img src="{{ loan.member.photo_url }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-indigo);">
+            <div>
+                <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">{{ loan.member.full_name }}</div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                    Code: {{ loan.member.member_code }} | Join Date: {{ loan.member.join_date }} | Phone: {{ loan.member.phone_number|default:"No phone" }}
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid rgba(0, 0, 0, 0.05); padding-top: 1rem;">
+            <div>
+                <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 600;">Requested Amount</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-indigo);">${{ loan.principal_amount }}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 600;">Application Date</div>
+                <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary);">{{ loan.created_at|date:"Y-m-d" }}</div>
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(0, 0, 0, 0.05); padding-top: 1rem;">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.25rem;">Purpose of Loan</div>
+            <p style="font-size: 0.95rem; color: var(--text-primary); line-height: 1.5; background: #ffffff; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                {{ loan.reason|default:"No reason specified." }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Approval Form -->
+    <form method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% csrf_token %}
+        
+        <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+            <label style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.85rem; border: 2px solid var(--accent-emerald); border-radius: 10px; cursor: pointer; background: rgba(16, 185, 129, 0.05); color: #047857; font-weight: 700;">
+                <input type="radio" name="action" value="approve" checked onclick="toggleApprovalFields(true)">
+                Approve & Issue Funds
+            </label>
+            <label style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.85rem; border: 2px solid var(--accent-rose); border-radius: 10px; cursor: pointer; background: rgba(239, 68, 68, 0.05); color: #b91c1c; font-weight: 700;">
+                <input type="radio" name="action" value="reject" onclick="toggleApprovalFields(false)">
+                Reject Request
+            </label>
+        </div>
+
+        <!-- Approval Specific Fields -->
+        <div id="approval-fields" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="interest_rate" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Set Annual Interest Rate (%)</label>
+                    <input type="number" id="interest_rate" name="interest_rate" required step="0.01" value="12.00" min="0.00">
+                </div>
+                
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="payment_mode" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Disbursal Payment Mode</label>
+                    <select id="payment_mode" name="payment_mode" required>
+                        <option value="bank_transfer" selected>Bank Transfer (Recommended)</option>
+                        <option value="cash">Cash disbursal</option>
+                        <option value="cheque">Cheque</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="issued_date" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Issue Date</label>
+                    <input type="date" id="issued_date" name="issued_date" required value="2026-05-26">
+                </div>
+                
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="due_date" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Maturity Due Date</label>
+                    <input type="date" id="due_date" name="due_date" required value="2027-05-26">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="comments" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Decision Notes / Rejection Reason</label>
+            <textarea id="comments" name="comments" rows="2" placeholder="Add details or reasons for this approval/rejection decision..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem; justify-content: center;">
+            Commit Financial Decision 💾
+        </button>
+    </form>
+</div>
+
+<script>
+function toggleApprovalFields(isApprove) {
+    const fields = document.getElementById('approval-fields');
+    const interest = document.getElementById('interest_rate');
+    const issued = document.getElementById('issued_date');
+    const due = document.getElementById('due_date');
+    
+    if (isApprove) {
+        fields.style.display = 'flex';
+        interest.required = true;
+        issued.required = true;
+        due.required = true;
+    } else {
+        fields.style.display = 'none';
+        interest.required = false;
+        issued.required = false;
+        due.required = false;
+    }
+}
+</script>
+{% endblock %}

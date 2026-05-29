@@ -1,0 +1,92 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Edit Member Profile - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Edit Member Profile</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Update user registry details for {{ member.full_name }}</p>
+    </div>
+    <a href="{% url 'member_list' %}" class="btn btn-secondary">⬅️ Back to Registry</a>
+</div>
+
+<div class="glass-card" style="max-width: 680px; margin: auto;">
+    <form method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% csrf_token %}
+        
+        <div style="background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.08); border-radius: 12px; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+            <img src="{{ member.photo_url }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-indigo);">
+            <div>
+                <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">{{ member.full_name }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">Currently: {{ member.get_status_display }} | Joined: {{ member.join_date|date:"Y-m-d" }}</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="member_code" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Member Code</label>
+                <input type="text" id="member_code" name="member_code" required value="{{ member.member_code }}">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="full_name" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Full Name</label>
+                <input type="text" id="full_name" name="full_name" required value="{{ member.full_name }}">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="join_date" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Join Date</label>
+                <input type="date" id="join_date" name="join_date" required value="{{ member.join_date|date:'Y-m-d' }}">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="phone_number" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Phone Number</label>
+                <input type="text" id="phone_number" name="phone_number" value="{{ member.phone_number|default:'' }}" placeholder="e.g. +91 98765 43210">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="aadhaar_number" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Aadhaar / ID Card</label>
+                <input type="text" id="aadhaar_number" name="aadhaar_number" value="{{ member.aadhaar_number|default:'' }}" placeholder="e.g. 1234-5678-9012">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="nominee_name" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Nominee Name</label>
+                <input type="text" id="nominee_name" name="nominee_name" value="{{ member.nominee_name|default:'' }}" placeholder="e.g. Richard Smith">
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="photo_url" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Avatar / Photo URL</label>
+            <input type="text" id="photo_url" name="photo_url" value="{{ member.photo_url }}" placeholder="e.g. URL to image (optional)">
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="address" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Residential Address</label>
+            <textarea id="address" name="address" rows="2" placeholder="Street address, city, state, pincode...">{{ member.address|default:'' }}</textarea>
+        </div>
+
+
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem; justify-content: center;">
+            Save Profile Changes 💾
+        </button>
+    </form>
+</div>
+
+<div class="glass-card" style="max-width: 680px; margin: 2rem auto auto; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.02);">
+    <h3 style="color: var(--accent-rose); font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Danger Zone ⚠️</h3>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.25rem;">Permanently delete this member registry record and all their associated financial contribution/loan history. This action is irreversible.</p>
+    <form method="POST" action="{% url 'delete_member' member.id %}" onsubmit="return confirm('Are you sure you want to permanently delete member {{ member.full_name }} and all their financial records? This action cannot be undone.');">
+        {% csrf_token %}
+        <button type="submit" class="btn" style="background: var(--accent-rose); border: none; color: #ffffff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.18);">
+            Delete Member Registry Record 🗑️
+        </button>
+    </form>
+</div>
+{% endblock %}

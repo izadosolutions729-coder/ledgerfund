@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Contributions - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Contributions Ledger</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Contribution history and penalty audits</p>
+    </div>
+    {% if request.user.role != 'standard' and request.user.role != 'auditor' %}
+    <a href="{% url 'record_contribution' %}" class="btn btn-primary">📥 Record Contribution</a>
+    {% endif %}
+</div>
+
+<div class="glass-card">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-secondary);">
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Member</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Plan</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Month</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: right;">Expected</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: right;">Paid Amount</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: right;">Penalty</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Payment Date</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: center;">Mode</th>
+                    {% if request.user.role != 'standard' and request.user.role != 'auditor' %}
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: center;">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for contrib in contributions %}
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.03); transition: background 0.2s;">
+                    <td style="padding: 1rem 0.5rem; font-weight: 600;">{{ contrib.member.full_name }} <span style="font-weight: 400; color: var(--text-secondary); font-size: 0.8rem;">({{ contrib.member.member_code }})</span></td>
+                    <td style="padding: 1rem 0.5rem;">{{ contrib.contribution_plan.plan_name }}</td>
+                    <td style="padding: 1rem 0.5rem; font-weight: 500;">{{ contrib.contribution_month|date:"F Y" }}</td>
+                    <td style="padding: 1rem 0.5rem; text-align: right; color: var(--text-secondary);">${{ contrib.expected_amount }}</td>
+                    <td style="padding: 1rem 0.5rem; text-align: right; font-weight: 700; color: var(--accent-emerald);">${{ contrib.paid_amount }}</td>
+                    <td style="padding: 1rem 0.5rem; text-align: right; color: {% if contrib.penalty_amount > 0 %}var(--accent-rose){% else %}var(--text-secondary){% endif %};">${{ contrib.penalty_amount }}</td>
+                    <td style="padding: 1rem 0.5rem; color: var(--text-secondary);">{{ contrib.payment_date|date:"Y-m-d" }}</td>
+                    <td style="padding: 1rem 0.5rem; text-align: center;">
+                        <span style="font-size: 0.8rem; background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo); padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 600; text-transform: uppercase;">
+                            {{ contrib.payment_mode }}
+                        </span>
+                    </td>
+                    {% if request.user.role != 'standard' and request.user.role != 'auditor' %}
+                    <td style="padding: 1rem 0.5rem; text-align: center; display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                        <a href="{% url 'edit_contribution' contrib.id %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">✏️ Edit</a>
+                        <form method="POST" action="{% url 'delete_contribution' contrib.id %}" onsubmit="return confirm('Are you sure you want to permanently delete this contribution record? This action cannot be undone.');" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px; color: var(--accent-rose); border-color: rgba(239, 68, 68, 0.2);">🗑️ Delete</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="padding: 3rem; text-align: center; color: var(--text-secondary);">No contributions recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

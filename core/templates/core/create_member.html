@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Add New Member - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Add New Member</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Register a new capital partner with user access credentials</p>
+    </div>
+    <a href="{% url 'member_list' %}" class="btn btn-secondary">⬅️ Back to Registry</a>
+</div>
+
+<div class="glass-card" style="max-width: 680px; margin: auto;">
+    <form method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="member_code" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Member Code</label>
+                <input type="text" id="member_code" name="member_code" required placeholder="e.g. MEM-005" 
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="full_name" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Full Name</label>
+                <input type="text" id="full_name" name="full_name" required placeholder="e.g. Jane Smith" 
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="join_date" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Join Date</label>
+                <input type="date" id="join_date" name="join_date" required value="2026-05-20"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="phone_number" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Phone Number</label>
+                <input type="text" id="phone_number" name="phone_number" placeholder="e.g. +91 98765 43210"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="aadhaar_number" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Aadhaar / ID Card</label>
+                <input type="text" id="aadhaar_number" name="aadhaar_number" placeholder="e.g. 1234-5678-9012"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="nominee_name" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Nominee Name</label>
+                <input type="text" id="nominee_name" name="nominee_name" placeholder="e.g. Richard Smith"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="photo_url" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Avatar / Photo URL</label>
+                <input type="text" id="photo_url" name="photo_url" placeholder="e.g. https://images.unsplash.com/... (optional)"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="address" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Residential Address</label>
+            <textarea id="address" name="address" rows="2" placeholder="Street address, city, state, pincode..."
+                      style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none; resize: vertical;"></textarea>
+        </div>
+
+
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.75rem; background: rgba(99, 102, 241, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(99, 102, 241, 0.2);">
+            <input type="checkbox" id="create_user" name="create_user" checked style="width: 1.15rem; height: 1.15rem; accent-color: var(--accent-indigo);">
+            <label for="create_user" style="font-size: 0.9rem; font-weight: 500; cursor: pointer;">Generate user login account (Username = Member Code, default password = Member Code)</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+            Create Member profile & Account 🚀
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Record Contribution - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Record Contribution</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Record a member's payment and automatically generate ledger double-entries</p>
+    </div>
+    <a href="{% url 'contribution_list' %}" class="btn btn-secondary">⬅️ Back to Contributions</a>
+</div>
+
+<div class="glass-card" style="max-width: 680px; margin: auto;">
+    <form method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="member_id" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Select Member</label>
+                <select id="member_id" name="member_id" required 
+                        style="background: rgba(13, 16, 38, 0.9); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+                    {% for member in members %}
+                    <option value="{{ member.id }}">{{ member.full_name }} ({{ member.member_code }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="plan_id" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Contribution Plan</label>
+                <select id="plan_id" name="plan_id" required 
+                        style="background: rgba(13, 16, 38, 0.9); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+                    {% for plan in plans %}
+                    <option value="{{ plan.id }}">{{ plan.plan_name }} (${{ plan.monthly_amount }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="month" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Contribution Month</label>
+                <input type="month" id="month" name="month" required value="2026-05"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="payment_date" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Payment Date</label>
+                <input type="date" id="payment_date" name="payment_date" required value="2026-05-20"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="paid_amount" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Paid Amount ($)</label>
+                <input type="number" id="paid_amount" name="paid_amount" required step="0.01" value="100.00" min="0.00"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="penalty_amount" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Penalty Amount ($)</label>
+                <input type="number" id="penalty_amount" name="penalty_amount" step="0.01" value="0.00" min="0.00"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="payment_mode" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Payment Mode</label>
+            <select id="payment_mode" name="payment_mode" required 
+                    style="background: rgba(13, 16, 38, 0.9); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+                <option value="cash">Cash</option>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cheque">Cheque</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="remarks" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Remarks / Narrative</label>
+            <textarea id="remarks" name="remarks" rows="2" placeholder="Describe this transaction..."
+                      style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none; resize: vertical;"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+            Record Contribution & Lock Ledger 💾
+        </button>
+    </form>
+</div>
+{% endblock %}

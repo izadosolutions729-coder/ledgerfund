@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Edit Meeting - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Edit Meeting</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Update meeting minutes, resolutions made, and attachments for "{{ meeting.title }}"</p>
+    </div>
+    <a href="{% url 'meeting_list' %}" class="btn btn-secondary">⬅️ Back to Meetings</a>
+</div>
+
+<div class="glass-card" style="max-width: 680px; margin: auto;">
+    <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        {% csrf_token %}
+        
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="title" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Meeting Title</label>
+            <input type="text" id="title" name="title" required value="{{ meeting.title }}" placeholder="e.g. Annual General Body Meeting 2026">
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="meeting_date" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Meeting Date</label>
+            <input type="date" id="meeting_date" name="meeting_date" required value="{{ meeting.meeting_date|date:'Y-m-d' }}">
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="notes" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Minutes / Decisions / Resolutions</label>
+            <textarea id="notes" name="notes" rows="6" placeholder="Document the core discussion points, interest rates revisions, loan approvals, or member suspension decisions...">{{ meeting.notes|default:'' }}</textarea>
+        </div>
+
+        <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label for="attachment" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Attachment (Resolution PDF / Scan)</label>
+            {% if meeting.attachment %}
+            <div style="font-size: 0.85rem; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="color: var(--text-secondary);">Current attachment:</span> 
+                <a href="{{ meeting.attachment.url }}" target="_blank" style="color: var(--accent-indigo); text-decoration: none; font-weight: 600;">📎 View Document</a>
+            </div>
+            {% endif %}
+            <input type="file" id="attachment" name="attachment">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem; justify-content: center;">
+            Save Meeting Changes 💾
+        </button>
+    </form>
+</div>
+
+<div class="glass-card" style="max-width: 680px; margin: 2rem auto auto; border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.02);">
+    <h3 style="color: var(--accent-rose); font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Danger Zone ⚠️</h3>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.25rem;">Permanently delete this meeting registry record. This action is irreversible.</p>
+    <form method="POST" action="{% url 'delete_meeting' meeting.id %}" onsubmit="return confirm('Are you sure you want to permanently delete this meeting record? This action cannot be undone.');">
+        {% csrf_token %}
+        <button type="submit" class="btn" style="background: var(--accent-rose); border: none; color: #ffffff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.18);">
+            Delete Meeting Record 🗑️
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Member Dashboard - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Welcome, {{ request.user.first_name }}</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span>Member Code: {{ member.member_code }}</span>
+            <span style="color: rgba(99, 102, 241, 0.15)">|</span>
+            <span>Join Date: {{ member.join_date|date:"Y-m-d" }}</span>
+            <span style="color: rgba(99, 102, 241, 0.15)">|</span>
+            <span>Status:</span>
+            <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.1); color: var(--accent-emerald); padding: 0.15rem 0.4rem; border-radius: 6px; font-weight: 600; text-transform: uppercase;">Active</span>
+        </p>
+    </div>
+    {% if member %}
+    <a href="{% url 'request_loan' %}" class="btn btn-primary">📤 Apply for a Loan</a>
+    {% endif %}
+</div>
+
+{% if not member %}
+<div class="glass-card" style="text-align: center; padding: 3rem;">
+    <h2 style="margin-bottom: 1rem;">Profile Missing</h2>
+    <p style="color: var(--text-secondary);">Your member registry record has not been linked to your user account yet. Please contact the administrator.</p>
+</div>
+{% else %}
+<!-- Stats Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+    <div class="glass-card" style="border-left: 4px solid var(--accent-indigo);">
+        <div style="font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 0.5rem;">My Contributions</div>
+        <div style="font-size: 2.2rem; font-weight: 800; font-family: 'Outfit', sans-serif;">
+            ${{ contributions_bal|floatformat:2 }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Total accumulated savings</div>
+    </div>
+    
+    <div class="glass-card" style="border-left: 4px solid var(--accent-cyan);">
+        <div style="font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 0.5rem;">Nominee Details</div>
+        <div style="font-size: 2.2rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: var(--accent-cyan);">
+            {{ member.nominee_name|default:"Not Specified" }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Nominee designated for your registry account</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    <!-- My Contributions -->
+    <div class="glass-card">
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">My Contribution History</h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-secondary);">
+                        <th style="padding: 0.75rem 0.5rem;">Month</th>
+                        <th style="padding: 0.75rem 0.5rem;">Payment Date</th>
+                        <th style="padding: 0.75rem 0.5rem; text-align: right;">Expected</th>
+                        <th style="padding: 0.75rem 0.5rem; text-align: right;">Paid</th>
+                        <th style="padding: 0.75rem 0.5rem; text-align: right;">Penalty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contrib in my_contributions %}
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
+                        <td style="padding: 0.85rem 0.5rem; font-weight: 500;">{{ contrib.contribution_month|date:"F Y" }}</td>
+                        <td style="padding: 0.85rem 0.5rem; color: var(--text-secondary);">{{ contrib.payment_date|date:"Y-m-d"|default:"Pending" }}</td>
+                        <td style="padding: 0.85rem 0.5rem; text-align: right;">${{ contrib.expected_amount }}</td>
+                        <td style="padding: 0.85rem 0.5rem; text-align: right; font-weight: 600; color: var(--accent-emerald);">${{ contrib.paid_amount }}</td>
+                        <td style="padding: 0.85rem 0.5rem; text-align: right; color: {% if contrib.penalty_amount > 0 %}var(--accent-rose){% else %}var(--text-secondary){% endif %};">${{ contrib.penalty_amount }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-secondary);">No contribution records.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- My Loans -->
+    <div class="glass-card">
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">My Active Loans</h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-secondary);">
+                        <th style="padding: 0.75rem 0.5rem;">Issued Date</th>
+                        <th style="padding: 0.75rem 0.5rem; text-align: right;">Principal</th>
+                        <th style="padding: 0.75rem 0.5rem; text-align: right;">Outstanding</th>
+                        <th style="padding: 0.75rem 0.5rem; text-align: right;">Rate</th>
+                        <th style="padding: 0.75rem 0.5rem; text-align: center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loan in my_loans %}
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
+                        <td style="padding: 0.85rem 0.5rem; color: var(--text-secondary);">{{ loan.issued_date|date:"Y-m-d" }}</td>
+                        <td style="padding: 0.85rem 0.5rem; text-align: right;">${{ loan.principal_amount }}</td>
+                        <td style="padding: 0.85rem 0.5rem; text-align: right; font-weight: 700; color: var(--accent-cyan);">${{ loan.outstanding_amount }}</td>
+                        <td style="padding: 0.85rem 0.5rem; text-align: right;">{{ loan.interest_rate }}%</td>
+                        <td style="padding: 0.85rem 0.5rem; text-align: center;">
+                            <span style="font-size: 0.8rem; background: {% if loan.loan_status == 'active' %}rgba(6, 182, 212, 0.15){% else %}rgba(255, 255, 255, 0.05){% endif %}; color: {% if loan.loan_status == 'active' %}var(--accent-cyan){% else %}var(--text-secondary){% endif %}; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 600; text-transform: uppercase;">
+                                {{ loan.loan_status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-secondary);">No loan records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

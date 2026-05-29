@@ -1,0 +1,70 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Members Registry - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Members Registry</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Comprehensive registry of community pool partners</p>
+    </div>
+    {% if request.user.role != 'auditor' %}
+    <a href="{% url 'create_member' %}" class="btn btn-primary">➕ Add Member</a>
+    {% endif %}
+</div>
+
+<div class="glass-card">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-secondary);">
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Code</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Full Name</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Join Date</th>
+
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Nominee</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: center;">Status</th>
+                    {% if request.user.role != 'standard' and request.user.role != 'auditor' %}
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: center;">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in members %}
+                <tr style="border-bottom: 1px solid rgba(0, 0, 0, 0.03); transition: background 0.2s;">
+                    <td style="padding: 1rem 0.5rem; font-weight: 600; color: var(--accent-cyan);">{{ member.member_code }}</td>
+                    <td style="padding: 1rem 0.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.75rem;">
+                        <img src="{{ member.photo_url }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--card-border);">
+                        <div>
+                            <span style="color: var(--text-primary);">{{ member.full_name }}</span>
+                            <div style="font-weight: 400; color: var(--text-secondary); font-size: 0.75rem;">{{ member.phone_number|default:"No phone" }}</div>
+                        </div>
+                    </td>
+                    <td style="padding: 1rem 0.5rem; color: var(--text-secondary);">{{ member.join_date|date:"Y-m-d" }}</td>
+
+                    <td style="padding: 1rem 0.5rem; color: var(--text-secondary);">{{ member.nominee_name|default:"—" }}</td>
+                    <td style="padding: 1rem 0.5rem; text-align: center;">
+                        <span style="font-size: 0.8rem; background: rgba(16, 185, 129, 0.1); color: var(--accent-emerald); padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 600; text-transform: uppercase;">
+                            {{ member.status }}
+                        </span>
+                    </td>
+                    {% if request.user.role != 'standard' and request.user.role != 'auditor' %}
+                    <td style="padding: 1rem 0.5rem; text-align: center; display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                        <a href="{% url 'edit_member' member.id %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">✏️ Edit</a>
+                        <form method="POST" action="{% url 'delete_member' member.id %}" onsubmit="return confirm('Are you sure you want to permanently delete member {{ member.full_name }} and all their financial records? This action cannot be undone.');" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px; color: var(--accent-rose); border-color: rgba(239, 68, 68, 0.2);">🗑️ Delete</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-secondary);">No registered members found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

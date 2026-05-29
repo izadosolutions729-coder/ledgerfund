@@ -1,0 +1,42 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Login - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="login-wrapper" style="width: 100%; max-width: 440px; margin: auto; padding: 2rem;">
+    <div class="glass-card" style="box-shadow: 0 12px 30px rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.12);">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <span>⬡</span> LedgerFund
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; font-weight: 500;">Secure, Auditable Community Ledger</p>
+        </div>
+
+        <form method="POST" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            {% csrf_token %}
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="username" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Username</label>
+                <input type="text" id="username" name="username" required placeholder="e.g. treasurer_bob" 
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.9rem 1.2rem; border-radius: 12px; color: var(--text-primary); font-size: 0.95rem; outline: none; transition: border-color 0.3s;"
+                       onfocus="this.style.borderColor='var(--accent-indigo)'" onblur="this.style.borderColor='var(--card-border)'">
+            </div>
+
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="password" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Password</label>
+                <input type="password" id="password" name="password" required placeholder="••••••••" 
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.9rem 1.2rem; border-radius: 12px; color: var(--text-primary); font-size: 0.95rem; outline: none; transition: border-color 0.3s;"
+                       onfocus="this.style.borderColor='var(--accent-indigo)'" onblur="this.style.borderColor='var(--card-border)'">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="padding: 0.9rem; font-size: 1rem; margin-top: 0.5rem;">
+                Sign In 🔐
+            </button>
+        </form>
+        
+        <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+            Demo account: <code style="color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">treasurer_bob</code> password: <code style="color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">bobpassword123</code>
+        </div>
+    </div>
+</div>
+{% endblock %}

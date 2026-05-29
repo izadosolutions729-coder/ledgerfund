@@ -1,0 +1,143 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Dashboard Overview</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Financial analytics for {{ organization.organization_name }}</p>
+    </div>
+    {% if can_manage %}
+    <div style="display: flex; gap: 0.75rem;">
+        <a href="{% url 'record_contribution' %}" class="btn btn-secondary">📥 Contribution</a>
+        <a href="{% url 'issue_loan' %}" class="btn btn-secondary">📤 Issue Loan</a>
+        <a href="{% url 'create_member' %}" class="btn btn-primary">➕ New Member</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Primary Stats Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+    <!-- Card 1 -->
+    <div class="glass-card" style="position: relative; overflow: hidden; border-left: 4px solid var(--accent-indigo);">
+        <div style="font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 0.5rem;">Total Assets</div>
+        <div style="font-size: 2.2rem; font-weight: 800; font-family: 'Outfit', sans-serif; background: linear-gradient(135deg, var(--text-primary), var(--accent-indigo)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            ${{ total_assets|floatformat:2 }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Cash + Bank + Receivables</div>
+        <div style="position: absolute; right: 1rem; bottom: -0.5rem; font-size: 5rem; opacity: 0.05; pointer-events: none;">📈</div>
+    </div>
+    
+    <!-- Card 2 -->
+    <div class="glass-card" style="position: relative; overflow: hidden; border-left: 4px solid var(--accent-cyan);">
+        <div style="font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 0.5rem;">Total Liabilities & Equity</div>
+        <div style="font-size: 2.2rem; font-weight: 800; font-family: 'Outfit', sans-serif; background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            ${{ total_liabilities|floatformat:2 }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Contributions + Share Capital</div>
+        <div style="position: absolute; right: 1rem; bottom: -0.5rem; font-size: 5rem; opacity: 0.05; pointer-events: none;">📉</div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="glass-card" style="position: relative; overflow: hidden; border-left: 4px solid var(--accent-emerald);">
+        <div style="font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 0.5rem;">Total Income Generated</div>
+        <div style="font-size: 2.2rem; font-weight: 800; font-family: 'Outfit', sans-serif; background: linear-gradient(135deg, var(--text-primary), var(--accent-emerald)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            ${{ total_income|floatformat:2 }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Interest + Penalties</div>
+        <div style="position: absolute; right: 1rem; bottom: -0.5rem; font-size: 5rem; opacity: 0.05; pointer-events: none;">💎</div>
+    </div>
+</div>
+
+<!-- Secondary Stats Grid (Detailed accounts) -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+    <div class="glass-card" style="padding: 1.25rem 1.5rem; border-color: rgba(255, 255, 255, 0.05);">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">🏦 Bank Balance</div>
+        <div style="font-size: 1.5rem; font-weight: 700; margin-top: 0.25rem;">${{ bank_bal|floatformat:2 }}</div>
+    </div>
+    <div class="glass-card" style="padding: 1.25rem 1.5rem; border-color: rgba(255, 255, 255, 0.05);">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">💵 Cash in Hand</div>
+        <div style="font-size: 1.5rem; font-weight: 700; margin-top: 0.25rem;">${{ cash_bal|floatformat:2 }}</div>
+    </div>
+    <div class="glass-card" style="padding: 1.25rem 1.5rem; border-color: rgba(255, 255, 255, 0.05);">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">📝 Loans Outstanding</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-indigo); margin-top: 0.25rem;">${{ loans_receivable|floatformat:2 }}</div>
+    </div>
+    <div class="glass-card" style="padding: 1.25rem 1.5rem; border-color: rgba(255, 255, 255, 0.05);">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">👥 Active Loans</div>
+        <div style="font-size: 1.5rem; font-weight: 700; margin-top: 0.25rem;">{{ active_loans_count }} Active</div>
+    </div>
+</div>
+
+<!-- Layout: Activity & Quick Controls -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    <!-- Recent Activity -->
+    <div class="glass-card">
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">Recent Ledger Movements</h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-secondary);">
+                        <th style="padding: 0.75rem 0.5rem; font-weight: 600;">Date</th>
+                        <th style="padding: 0.75rem 0.5rem; font-weight: 600;">Category</th>
+                        <th style="padding: 0.75rem 0.5rem; font-weight: 600;">Type</th>
+                        <th style="padding: 0.75rem 0.5rem; font-weight: 600; text-align: right;">Amount</th>
+                        <th style="padding: 0.75rem 0.5rem; font-weight: 600;">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in recent_transactions %}
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.03); transition: background 0.2s;">
+                        <td style="padding: 0.85rem 0.5rem; color: var(--text-secondary);">{{ entry.transaction_date|date:"Y-m-d" }}</td>
+                        <td style="padding: 0.85rem 0.5rem; font-weight: 500;">{{ entry.category }}</td>
+                        <td style="padding: 0.85rem 0.5rem;">
+                            {% if entry.transaction_type == 'debit' %}
+                            <span style="color: var(--accent-emerald); font-weight: 600; font-size: 0.8rem; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.5rem; border-radius: 6px; text-transform: uppercase;">Debit</span>
+                            {% else %}
+                            <span style="color: var(--accent-indigo); font-weight: 600; font-size: 0.8rem; background: rgba(99, 102, 241, 0.1); padding: 0.2rem 0.5rem; border-radius: 6px; text-transform: uppercase;">Credit</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 0.85rem 0.5rem; text-align: right; font-weight: 600;">
+                            ${% if entry.transaction_type == 'debit' %}{{ entry.debit_amount }}{% else %}{{ entry.credit_amount }}{% endif %}
+                        </td>
+                        <td style="padding: 0.85rem 0.5rem; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ entry.remarks }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-secondary);">No ledger movements recorded.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Operations card -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="glass-card">
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem;">Global Metrics</h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <span style="font-size: 0.9rem; color: var(--text-secondary);">Registry Size</span>
+                    <span style="font-weight: 700;">{{ members_count }} members</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <span style="font-size: 0.9rem; color: var(--text-secondary);">Share Capital</span>
+                    <span style="font-weight: 700; color: var(--accent-cyan);">${{ share_capital|floatformat:2 }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.9rem; color: var(--text-secondary);">System Integrity</span>
+                    <span style="font-weight: 600; font-size: 0.8rem; background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); padding: 0.2rem 0.5rem; border-radius: 6px; text-transform: uppercase;"> Ledger Intact</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1)); border-color: rgba(99, 102, 241, 0.2);">
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">Audit & Reports</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.4;">Download a fully generated and legally-compliant General Ledger audit PDF directly generated from the backend database.</p>
+            <a href="{% url 'download_ledger_pdf' %}" class="btn btn-primary" style="width: 100%;">📥 Export Audit PDF</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

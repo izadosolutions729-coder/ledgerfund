@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Meetings - LedgerFund{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Meeting Records</h1>
+        <p style="color: var(--text-secondary); margin-top: 0.25rem;">Audit log of organization assemblies, resolutions, and notes</p>
+    </div>
+    {% if request.user.role != 'standard' and request.user.role != 'auditor' %}
+    <a href="{% url 'create_meeting' %}" class="btn btn-primary">📅 Log Meeting</a>
+    {% endif %}
+</div>
+
+<div class="glass-card">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--card-border); color: var(--text-secondary);">
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Meeting Date</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Title</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Notes / Decisions</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Attachment</th>
+                    <th style="padding: 1rem 0.5rem; font-weight: 600;">Logged By</th>
+                    {% if request.user.role != 'standard' and request.user.role != 'auditor' %}
+                    <th style="padding: 1rem 0.5rem; font-weight: 600; text-align: center;">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for meeting in meetings %}
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.03); transition: background 0.2s;">
+                    <td style="padding: 1rem 0.5rem; font-weight: 600; color: var(--accent-cyan);">{{ meeting.meeting_date|date:"Y-m-d" }}</td>
+                    <td style="padding: 1rem 0.5rem; font-weight: 500;">{{ meeting.title }}</td>
+                    <td style="padding: 1rem 0.5rem; color: var(--text-secondary); max-width: 400px; word-wrap: break-word;">{{ meeting.notes|default:"—" }}</td>
+                    <td style="padding: 1rem 0.5rem;">
+                        {% if meeting.attachment %}
+                        <a href="{{ meeting.attachment.url }}" target="_blank" style="color: var(--accent-indigo); text-decoration: none; font-weight: 600;">📎 View Document</a>
+                        {% else %}
+                        <span style="color: var(--text-secondary);">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem 0.5rem; color: var(--text-secondary);">{{ meeting.created_by.username }}</td>
+                    {% if request.user.role != 'standard' and request.user.role != 'auditor' %}
+                    <td style="padding: 1rem 0.5rem; text-align: center; display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                        <a href="{% url 'edit_meeting' meeting.id %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">✏️ Edit</a>
+                        <form method="POST" action="{% url 'delete_meeting' meeting.id %}" onsubmit="return confirm('Are you sure you want to permanently delete this meeting record? This action cannot be undone.');" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px; color: var(--accent-rose); border-color: rgba(239, 68, 68, 0.2);">🗑️ Delete</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-secondary);">No meeting logs recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
