@@ -3,10 +3,16 @@
 {% block title %}Login - LedgerFund{% endblock %}
 
 {% block content %}
-<div class="login-wrapper" style="width: 100%; max-width: 440px; margin: auto; padding: 2rem;">
-    <div class="glass-card" style="box-shadow: 0 12px 30px rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.12);">
+<div class="login-wrapper" style="width: 100%; max-width: 440px; margin: auto; padding: 2rem; animation: fadeUpIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);">
+    <style>
+        @keyframes fadeUpIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <div class="glass-card" style="box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.15); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); background: rgba(255, 255, 255, 0.85);">
         <div style="text-align: center; margin-bottom: 2rem;">
-            <div style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+            <div style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem; filter: drop-shadow(0 2px 4px rgba(99,102,241,0.2));">
                 <span>⬡</span> LedgerFund
             </div>
             <p style="color: var(--text-secondary); font-size: 0.95rem; font-weight: 500;">Secure, Auditable Community Ledger</p>

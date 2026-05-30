@@ -62,6 +62,23 @@
             </tbody>
         </table>
     </div>
+    
+    <div class="pagination" style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid var(--card-border);">
+        <span class="step-links" style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">
+            Showing page <span style="color: var(--text-primary);">{{ entries.number }}</span> of <span style="color: var(--text-primary);">{{ entries.paginator.num_pages }}</span>
+        </span>
+        <div style="display: flex; gap: 0.5rem;">
+            {% if entries.has_previous %}
+                <a href="?page=1" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">&laquo; First</a>
+                <a href="?page={{ entries.previous_page_number }}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Previous</a>
+            {% endif %}
+
+            {% if entries.has_next %}
+                <a href="?page={{ entries.next_page_number }}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Next</a>
+                <a href="?page={{ entries.paginator.num_pages }}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Last &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <script>

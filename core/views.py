@@ -9,7 +9,7 @@ from datetime import date, datetime
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
-
+from django.core.paginator import Paginator
 
 from .models import Organization, User, Member, Meeting
 from contributions.models import ContributionPlan, Contribution
@@ -174,8 +174,11 @@ def dashboard_view(request):
     total_liabilities = contributions_bal + share_capital
     total_income = interest_income + penalty_income
     
-    # Recent activity
-    recent_transactions = LedgerEntry.objects.filter(organization=org).order_by('-transaction_date', '-id')[:10]
+    # Recent activity with pagination
+    recent_transactions_list = LedgerEntry.objects.filter(organization=org).order_by('-transaction_date', '-id')
+    paginator = Paginator(recent_transactions_list, 60)
+    page_number = request.GET.get('page')
+    recent_transactions = paginator.get_page(page_number)
     
     # Member context
     if user.role == User.Role.STANDARD:
@@ -551,9 +554,33 @@ def record_repayment_view(request, loan_id):
     return render(request, 'core/record_repayment.html', {'loan': loan})
 
 @login_required
+def close_loan_view(request, loan_id):
+    if not can_manage_finance(request.user):
+        messages.error(request, "Permission Denied.")
+        return redirect('dashboard')
+        
+    org = request.user.organization
+    loan = get_object_or_404(Loan, id=loan_id, member__organization=org)
+    
+    if request.method == 'POST':
+        try:
+            loan.loan_status = 'closed'
+            loan.save()
+            messages.success(request, f"Loan #{loan.id} has been manually closed.")
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+            
+    return redirect('loan_list')
+
+@login_required
 def reports_view(request):
     org = request.user.organization
-    entries = LedgerEntry.objects.filter(organization=org).order_by('-transaction_date', '-id')
+    entries_list = LedgerEntry.objects.filter(organization=org).order_by('-transaction_date', '-id')
+    
+    paginator = Paginator(entries_list, 60)
+    page_number = request.GET.get('page')
+    entries = paginator.get_page(page_number)
+    
     return render(request, 'core/reports.html', {'entries': entries})
 
 @login_required

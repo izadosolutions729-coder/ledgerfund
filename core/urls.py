@@ -23,6 +23,7 @@ urlpatterns = [
     path('loans/request/', views.request_loan_view, name='request_loan'),
     path('loans/<int:loan_id>/approve/', views.approve_loan_view, name='approve_loan'),
     path('loans/<int:loan_id>/repay/', views.record_repayment_view, name='record_repayment'),
+    path('loans/<int:loan_id>/close/', views.close_loan_view, name='close_loan'),
     
     path('reports/', views.reports_view, name='reports'),
     path('reports/general-ledger/pdf/', views.download_general_ledger_pdf, name='download_ledger_pdf'),
