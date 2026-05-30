@@ -28,37 +28,46 @@ def login_view(request):
         return redirect('dashboard')
         
     if request.method == 'POST':
-        email = request.POST.get('email')
+        login_type = request.POST.get('login_type')
         
-        try:
-            user = User.objects.get(email=email)
-            if user.status != 'active':
-                messages.error(request, "Your account is currently inactive.")
-                return render(request, 'core/login.html')
-            
-            # Generate and send OTP
-            otp = user.generate_otp()
-            subject = f"Your LedgerFund Login OTP: {otp}"
-            message = f"Hello {user.first_name or user.username},\n\nYour one-time password for LedgerFund is: {otp}\n\nThis code expires in 10 minutes.\n\nSecure, Auditable Community Ledger."
-            
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
-                request.session['otp_user_id'] = user.id
-                messages.success(request, f"A 6-digit OTP has been sent to {user.email}")
-                return redirect('verify_otp')
-            except Exception as e:
-                messages.error(request, f"Error sending email: {e}")
+        if login_type == 'password':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                if user.status == 'active':
+                    login(request, user)
+                    return redirect('dashboard')
+                else:
+                    messages.error(request, "Your account is currently inactive.")
+            else:
+                messages.error(request, "Invalid username or password.")
                 
-        except User.DoesNotExist:
-            messages.error(request, "No account found with this email.")
+        elif login_type == 'otp':
+            email = request.POST.get('email')
+            try:
+                user = User.objects.get(email=email)
+                if user.status != 'active':
+                    messages.error(request, "Your account is currently inactive.")
+                    return render(request, 'core/login.html')
+                
+                # Generate and send OTP
+                otp = user.generate_otp()
+                subject = f"Your LedgerFund Login OTP: {otp}"
+                message = f"Hello {user.first_name or user.username},\n\nYour one-time password for LedgerFund is: {otp}\n\nThis code expires in 10 minutes."
+                
+                try:
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+                    request.session['otp_user_id'] = user.id
+                    messages.success(request, f"A 6-digit OTP has been sent to {user.email}")
+                    return redirect('verify_otp')
+                except Exception as e:
+                    messages.error(request, f"Error sending email: {e}")
+            except User.DoesNotExist:
+                messages.error(request, "No account found with this email.")
             
     return render(request, 'core/login.html')
+
 
 def verify_otp_view(request):
     user_id = request.session.get('otp_user_id')

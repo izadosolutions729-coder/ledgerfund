@@ -12,21 +12,63 @@
             <p style="color: var(--text-secondary); font-size: 0.95rem; font-weight: 500;">Secure, Auditable Community Ledger</p>
         </div>
 
-        <form method="POST" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div style="display: flex; background: rgba(255, 255, 255, 0.05); padding: 0.25rem; border-radius: 12px; margin-bottom: 2rem;">
+            <button type="button" id="tab-password" onclick="switchLogin('password')" style="flex: 1; padding: 0.6rem; border: none; border-radius: 10px; background: var(--accent-indigo); color: white; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">🔑 Password</button>
+            <button type="button" id="tab-otp" onclick="switchLogin('otp')" style="flex: 1; padding: 0.6rem; border: none; border-radius: 10px; background: transparent; color: var(--text-secondary); cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">📩 OTP Login</button>
+        </div>
+
+        <form method="POST" id="form-password" style="display: flex; flex-direction: column; gap: 1.25rem;">
             {% csrf_token %}
-            
+            <input type="hidden" name="login_type" value="password">
             <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <label for="email" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="e.g. name@example.com" 
-                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.9rem 1.2rem; border-radius: 12px; color: var(--text-primary); font-size: 0.95rem; outline: none; transition: border-color 0.3s;"
-                       onfocus="this.style.borderColor='var(--accent-indigo)'" onblur="this.style.borderColor='var(--card-border)'">
+                <label for="username" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Username</label>
+                <input type="text" id="username" name="username" placeholder="e.g. treasurer_bob" 
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.9rem 1.2rem; border-radius: 12px; color: var(--text-primary); font-size: 0.95rem; outline: none; transition: border-color 0.3s;">
             </div>
-
-            <button type="submit" class="btn btn-primary" style="padding: 0.9rem; font-size: 1rem; margin-top: 0.5rem;">
-                Send OTP Code 📧
-            </button>
-
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="password" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Password</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" 
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.9rem 1.2rem; border-radius: 12px; color: var(--text-primary); font-size: 0.95rem; outline: none; transition: border-color 0.3s;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 0.9rem; font-size: 1rem; margin-top: 0.5rem;">Sign In 🔐</button>
         </form>
+
+        <form method="POST" id="form-otp" style="display: none; flex-direction: column; gap: 1.25rem;">
+            {% csrf_token %}
+            <input type="hidden" name="login_type" value="otp">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="email" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Gmail Address</label>
+                <input type="email" id="email" name="email" placeholder="e.g. name@gmail.com" 
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.9rem 1.2rem; border-radius: 12px; color: var(--text-primary); font-size: 0.95rem; outline: none; transition: border-color 0.3s;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 0.9rem; font-size: 1rem; margin-top: 0.5rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));">Send OTP Code 📧</button>
+        </form>
+
+        <script>
+            function switchLogin(type) {
+                const formPass = document.getElementById('form-password');
+                const formOtp = document.getElementById('form-otp');
+                const tabPass = document.getElementById('tab-password');
+                const tabOtp = document.getElementById('tab-otp');
+
+                if (type === 'password') {
+                    formPass.style.display = 'flex';
+                    formOtp.style.display = 'none';
+                    tabPass.style.background = 'var(--accent-indigo)';
+                    tabPass.style.color = 'white';
+                    tabOtp.style.background = 'transparent';
+                    tabOtp.style.color = 'var(--text-secondary)';
+                } else {
+                    formPass.style.display = 'none';
+                    formOtp.style.display = 'flex';
+                    tabOtp.style.background = 'var(--accent-indigo)';
+                    tabOtp.style.color = 'white';
+                    tabPass.style.background = 'transparent';
+                    tabPass.style.color = 'var(--text-secondary)';
+                }
+            }
+        </script>
+
         
         <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
             Demo account: <code style="color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">treasurer_bob</code> password: <code style="color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">bobpassword123</code>
