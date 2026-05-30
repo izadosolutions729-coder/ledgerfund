@@ -158,6 +158,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'izadosolutions729@gmail.com'
 # Google App Password (generated from myaccount.google.com/apppasswords)
-EMAIL_HOST_PASSWORD = 'tsveyhedrpbhrkpv'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = f"LedgerFund <{EMAIL_HOST_USER}>"
 
