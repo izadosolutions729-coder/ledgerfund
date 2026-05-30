@@ -40,7 +40,12 @@
                 <label for="join_date" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Join Date</label>
                 <input type="date" id="join_date" name="join_date" required value="{{ member.join_date|date:'Y-m-d' }}">
             </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="email" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Gmail Address (Login Email)</label>
+                <input type="email" id="email" name="email" value="{{ member.email|default:'' }}" required placeholder="member@gmail.com">
+            </div>
         </div>
+
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
             <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">

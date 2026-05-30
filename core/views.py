@@ -232,12 +232,14 @@ def create_member_view(request):
     if request.method == 'POST':
         member_code = request.POST.get('member_code')
         full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
         phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
         aadhaar_number = request.POST.get('aadhaar_number')
         photo_url = request.POST.get('photo_url')
         join_date_str = request.POST.get('join_date')
         nominee_name = request.POST.get('nominee_name')
+
         
         try:
             join_date = datetime.strptime(join_date_str, '%Y-%m-%d').date()
@@ -252,6 +254,7 @@ def create_member_view(request):
                 'notes': ''
             }
             if phone_number: create_params['phone_number'] = phone_number
+            if email: create_params['email'] = email
             if address: create_params['address'] = address
             if aadhaar_number: create_params['aadhaar_number'] = aadhaar_number
             if photo_url: create_params['photo_url'] = photo_url
@@ -259,16 +262,18 @@ def create_member_view(request):
             member = Member.objects.create(**create_params)
             # Create a corresponding user account for the member if requested
             create_user = request.POST.get('create_user') == 'on'
-            if create_user:
+            if create_user and email:
                 User.objects.create_user(
                     username=member_code,
-                    email=f"{member_code.lower()}@fund.org",
-                    password=member_code, # Default password is the member code
+                    email=email.lower(), # Use the Gmail provided
+                    password=member_code, # Optional, OTP will be primary
                     organization=request.user.organization,
                     role=User.Role.STANDARD,
                     first_name=full_name.split()[0] if full_name else "",
-                    last_name=full_name.split()[-1] if len(full_name.split()) > 1 else ""
+                    last_name=full_name.split()[-1] if len(full_name.split()) > 1 else "",
+                    profile_photo=photo_url or "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=120"
                 )
+
             
             messages.success(request, f"Member {full_name} created successfully!")
             return redirect('member_list')
@@ -301,7 +306,9 @@ def edit_member_view(request, member_id):
             
             member.member_code = member_code
             member.full_name = full_name
+            member.email = request.POST.get('email')
             member.phone_number = phone_number
+
             member.address = address
             member.aadhaar_number = aadhaar_number
             if photo_url:

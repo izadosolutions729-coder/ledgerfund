@@ -58,7 +58,9 @@ class Member(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='members')
     member_code = models.CharField(max_length=50, unique=True)
     full_name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True, null=True, blank=True)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
+
     address = models.TextField(null=True, blank=True)
     aadhaar_number = models.CharField(max_length=20, null=True, blank=True, help_text="Aadhaar or National ID")
     photo_url = models.CharField(max_length=500, null=True, blank=True, default="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=120", help_text="Link to profile photo")

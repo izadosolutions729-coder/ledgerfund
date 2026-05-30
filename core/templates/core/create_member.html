@@ -35,7 +35,13 @@
                 <input type="date" id="join_date" name="join_date" required value="2026-05-20"
                        style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
             </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label for="email" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Gmail Address (Required for login)</label>
+                <input type="email" id="email" name="email" required placeholder="member@gmail.com"
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.8rem 1rem; border-radius: 10px; color: var(--text-primary); outline: none;">
+            </div>
         </div>
+
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
             <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -75,8 +81,9 @@
 
         <div class="form-group" style="display: flex; align-items: center; gap: 0.75rem; background: rgba(99, 102, 241, 0.05); padding: 1rem; border-radius: 12px; border: 1px dashed rgba(99, 102, 241, 0.2);">
             <input type="checkbox" id="create_user" name="create_user" checked style="width: 1.15rem; height: 1.15rem; accent-color: var(--accent-indigo);">
-            <label for="create_user" style="font-size: 0.9rem; font-weight: 500; cursor: pointer;">Generate user login account (Username = Member Code, default password = Member Code)</label>
+            <label for="create_user" style="font-size: 0.9rem; font-weight: 500; cursor: pointer;">Enable Secure App Access (Member will login via Gmail + OTP)</label>
         </div>
+
 
         <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
             Create Member profile & Account 🚀
