@@ -6,6 +6,10 @@ from django.db.models import Sum
 from django.http import HttpResponse, Http404
 from decimal import Decimal
 from datetime import date, datetime
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
+
 
 from .models import Organization, User, Member, Meeting
 from contributions.models import ContributionPlan, Contribution
@@ -24,20 +28,89 @@ def login_view(request):
         return redirect('dashboard')
         
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        email = request.POST.get('email')
         
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            if user.status == 'active':
-                login(request, user)
-                return redirect('dashboard')
-            else:
+        try:
+            user = User.objects.get(email=email)
+            if user.status != 'active':
                 messages.error(request, "Your account is currently inactive.")
-        else:
-            messages.error(request, "Invalid username or password.")
+                return render(request, 'core/login.html')
+            
+            # Generate and send OTP
+            otp = user.generate_otp()
+            subject = f"Your LedgerFund Login OTP: {otp}"
+            message = f"Hello {user.first_name or user.username},\n\nYour one-time password for LedgerFund is: {otp}\n\nThis code expires in 10 minutes.\n\nSecure, Auditable Community Ledger."
+            
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                request.session['otp_user_id'] = user.id
+                messages.success(request, f"A 6-digit OTP has been sent to {user.email}")
+                return redirect('verify_otp')
+            except Exception as e:
+                messages.error(request, f"Error sending email: {e}")
+                
+        except User.DoesNotExist:
+            messages.error(request, "No account found with this email.")
             
     return render(request, 'core/login.html')
+
+def verify_otp_view(request):
+    user_id = request.session.get('otp_user_id')
+    if not user_id:
+        return redirect('login')
+        
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == 'POST':
+        otp_code = request.POST.get('otp_code')
+        if user.verify_otp(otp_code):
+            login(request, user)
+            del request.session['otp_user_id']
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Invalid or expired OTP.")
+            
+    return render(request, 'core/verify_otp.html', {'email': user.email})
+
+@login_required
+def profile_edit_view(request):
+    user = request.user
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        profile_photo = request.POST.get('profile_photo')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        
+        try:
+            if email:
+                user.email = email
+            if password:
+                user.set_password(password)
+            if profile_photo:
+                user.profile_photo = profile_photo
+            if first_name:
+                user.first_name = first_name
+            if last_name:
+                user.last_name = last_name
+                
+            user.save()
+            if password: # Log back in if password changed
+                login(request, user)
+                
+            messages.success(request, "Profile updated successfully!")
+            return redirect('dashboard')
+        except Exception as e:
+            messages.error(request, f"Error updating profile: {e}")
+            
+    return render(request, 'core/profile_edit.html', {'u': user})
+
 
 def logout_view(request):
     logout(request)

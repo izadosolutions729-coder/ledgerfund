@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+import random
+import datetime
+
 
 class Organization(models.Model):
     organization_name = models.CharField(max_length=255)
@@ -26,6 +30,25 @@ class User(AbstractUser):
     mobile_number = models.CharField(max_length=20, unique=True, null=True, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.STANDARD)
     status = models.CharField(max_length=20, choices=[('active', 'Active'), ('inactive', 'Inactive')], default='active')
+    
+    # OTP and Profile Fields
+    profile_photo = models.URLField(max_length=500, null=True, blank=True, default="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=120")
+    otp_code = models.CharField(max_length=6, null=True, blank=True)
+    otp_expiry = models.DateTimeField(null=True, blank=True)
+
+    def generate_otp(self):
+        self.otp_code = str(random.randint(100000, 999999))
+        self.otp_expiry = timezone.now() + datetime.timedelta(minutes=10)
+        self.save()
+        return self.otp_code
+
+    def verify_otp(self, code):
+        if self.otp_code == code and self.otp_expiry > timezone.now():
+            self.otp_code = None  # Use once
+            self.save()
+            return True
+        return False
+
 
     def __str__(self):
         return self.username

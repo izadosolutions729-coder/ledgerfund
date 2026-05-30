@@ -351,12 +351,17 @@
             </li>
         </ul>
         <div class="user-profile-section">
-            <div>
-                <div class="username-display">{{ request.user.first_name }} {{ request.user.last_name }}</div>
-                <div class="role-tag">{{ request.user.role }}</div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <img src="{{ request.user.profile_photo }}" alt="P" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 2px solid var(--accent-indigo);">
+                <div style="flex-grow: 1;">
+                    <div class="username-display" style="font-size: 0.85rem;">{{ request.user.first_name|default:request.user.username }}</div>
+                    <div class="role-tag" style="font-size: 0.65rem;">{{ request.user.role }}</div>
+                </div>
+                <a href="{% url 'profile_edit' %}" style="font-size: 1.1rem; text-decoration: none; opacity: 0.6;" title="Edit Profile">⚙️</a>
             </div>
-            <a href="{% url 'logout' %}" class="btn btn-secondary logout-btn">🔒 Logout</a>
+            <a href="{% url 'logout' %}" class="btn btn-secondary logout-btn" style="padding: 0.5rem; font-size: 0.85rem;">🔒 Logout</a>
         </div>
+
     </div>
     {% endif %}
 

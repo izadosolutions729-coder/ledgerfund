@@ -1,35 +1,34 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Login - LedgerFund{% endblock %}
+{% block title %}Verify OTP - LedgerFund{% endblock %}
 
 {% block content %}
 <div class="login-wrapper" style="width: 100%; max-width: 440px; margin: auto; padding: 2rem;">
     <div class="glass-card" style="box-shadow: 0 12px 30px rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.12);">
         <div style="text-align: center; margin-bottom: 2rem;">
             <div style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; display: inline-flex; align-items: center; gap: 0.5rem;">
-                <span>⬡</span> LedgerFund
+                <span>⬡</span> Verify OTP
             </div>
-            <p style="color: var(--text-secondary); font-size: 0.95rem; font-weight: 500;">Secure, Auditable Community Ledger</p>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; font-weight: 500;">Enter the 6-digit code sent to<br><strong style="color: var(--text-primary);">{{ email }}</strong></p>
         </div>
 
         <form method="POST" style="display: flex; flex-direction: column; gap: 1.25rem;">
             {% csrf_token %}
             
             <div class="form-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <label for="email" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="e.g. name@example.com" 
-                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.9rem 1.2rem; border-radius: 12px; color: var(--text-primary); font-size: 0.95rem; outline: none; transition: border-color 0.3s;"
+                <label for="otp_code" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Verification Code</label>
+                <input type="text" id="otp_code" name="otp_code" required maxlength="6" pattern="\d{6}" placeholder="123456" 
+                       style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 0.9rem 1.2rem; border-radius: 12px; color: var(--text-primary); font-size: 1.5rem; letter-spacing: 0.5em; text-align: center; outline: none; transition: border-color 0.3s;"
                        onfocus="this.style.borderColor='var(--accent-indigo)'" onblur="this.style.borderColor='var(--card-border)'">
             </div>
 
             <button type="submit" class="btn btn-primary" style="padding: 0.9rem; font-size: 1rem; margin-top: 0.5rem;">
-                Send OTP Code 📧
+                Verify & Sign In 🔓
             </button>
-
         </form>
         
         <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
-            Demo account: <code style="color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">treasurer_bob</code> password: <code style="color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); padding: 0.2rem 0.4rem; border-radius: 4px;">bobpassword123</code>
+            Didn't receive the code? <a href="{% url 'login' %}" style="color: var(--accent-indigo); text-decoration: none; font-weight: 600;">Go Back</a>
         </div>
     </div>
 </div>

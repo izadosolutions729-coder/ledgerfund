@@ -30,11 +30,14 @@ if os.environ.get('VERCEL'):
             User.objects.create_superuser(
                 username='treasurer_bob',
                 password='bobpassword123',
-                email='bob@example.com',
+                email='izadosolution729@gmail.com', # Use your company gmail for testing
                 organization=org,
-                role='treasurer'
+                role='treasurer',
+                first_name='Bob',
+                last_name='Treasurer'
             )
-            print("Demo user 'treasurer_bob' created.")
+            print("Demo user 'treasurer_bob' created with company gmail.")
+
     except Exception as e:
         print(f"Startup error: {e}")
 
